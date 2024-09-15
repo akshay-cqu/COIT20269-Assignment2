@@ -24,8 +24,6 @@ $(document).ready(function () {
 			var inputData = JSON.parse(localStorage.getItem("inputData"));
 
 			$.post(domainUrl + "/verifyUser", inputData,  function(data, status){
-					if (debug) alert("Data received: " + JSON.stringify(data));
-					if (debug) alert("\nStatus: " + status);
 				
 				if (data.length > 0) {
 					alert("Login success");
@@ -101,15 +99,20 @@ $(document).ready(function () {
 
 		// Convert the array into an object for easy handling
 		var formData = {};
+		var haveValues = true;
+		
 		$.each(formArray, function (i, field) {
-        formData[field.name] = field.value;
+			if (field.value.trim() == "") { // If any value is not empty
+				haveValues = false;
+			formData[field.name] = field.value;
+			}
 		});
 
 		// Store form data into localStorage for later use
 		localStorage.setItem("signUpData", JSON.stringify(formData));
-		
+		console.log(localStorage.signUpData);
 
-		if (localStorage.signUpData != null) {
+		if (haveValues) {
 			
 			var signUpData = JSON.parse(localStorage.getItem("signUpData"));
 
@@ -127,12 +130,101 @@ $(document).ready(function () {
 			
 			$.mobile.changePage("#loginPage");
 		}//end if statement
+		else
+			alert("Signup failed");
 	});
 	
 	/**
 	--------------------------end--------------------------
 	**/	
 	
+	/**
+	--------------------Signup form JQuery validation plugin----------------------
+	**/
+	
+	$("#signUpForm").validate({
+		focusInvalid: false,  
+		onkeyup: false,
+		submitHandler: function (form) {   
+			
+			var formData =$(form).serializeArray();
+			var signUpData = {};
+			formData.forEach(function(data){
+				signUpData[data.name] = data.value;
+			})
+
+			localStorage.setItem("signUpData", JSON.stringify(signUpData));		
+		},
+		/* Validation rules */
+		rules: {
+			email: {
+				required: true,
+				email: true
+			},
+			password: {
+				required: true,
+				rangelength: [3, 10]
+			},
+			firstName: {
+				required: true,
+				rangelength: [1, 15],
+				validateName: true
+			},
+			lastName: {
+				required: true,
+				rangelength: [1, 15],
+				validateName: true
+			},
+			phoneNumber: {
+				required: true,
+				mobiletxt: true
+			},
+			address: {
+				required: true,
+				rangelength: [1, 25]
+			},
+			postcode: {
+				required: true,
+				posttxt: true
+			},
+		},
+		/* Validation message */
+		messages: {
+			email: {
+				required: "Please enter your email",
+				email: "The email format is incorrect"
+			},
+			password: {
+				required: "Password cannot be empty",
+				rangelength: $.validator.format("Minimum Password Length:{0}, Maximum Password Length:{1}。")
+
+			},
+			firstName: {
+				required: "Please enter your firstname",
+				rangelength: $.validator.format("Contains a maximum of{1}characters"),
+
+			},
+			lastName: {
+				required: "Please enter your lastname",
+				rangelength: $.validator.format("Contains a maximum of{1}characters"),
+			},
+			phoneNumber: {
+				required: "Phone number required",
+			},
+			address: {
+				required: "Delivery address required",
+				rangelength: $.validator.format("Contains a maximum of{1}characters"),
+			},
+			postcode: {
+				required: "Postcode required",
+
+			},
+		},
+	});
+	
+	/**
+	--------------------------end--------------------------
+	**/
 	
 	/**
 	--------------------Event handler to process order submission----------------------
@@ -144,7 +236,7 @@ $(document).ready(function () {
 
 		$("#orderForm").submit();
 
-		if (localStorage.orderInfo != null) {
+		
 		
 			var orderInfo = JSON.parse(localStorage.getItem("inputData"));
 
@@ -153,8 +245,6 @@ $(document).ready(function () {
 			orderInfo.itemImage = localStorage.getItem("itemImage");
 			
 			var userInfo = JSON.parse(localStorage.getItem("userInfo"));
-			
-			if (debug) alert("Customer: " + JSON.stringify(userInfo));
 
 			orderInfo.customerEmail = userInfo.email;
 
@@ -164,8 +254,6 @@ $(document).ready(function () {
 			
 
 			$.post(domainUrl + "/postOrderData", orderInfo, function(data, status){
-				if (debug) alert("Data sent: " + JSON.stringify(data));
-				if (debug) alert("\nStatus: " + status);
 			
 				//clear form data 
 				$("#orderForm").trigger('reset');
@@ -173,7 +261,7 @@ $(document).ready(function () {
 				$.mobile.changePage("#orderConfirmationPage");
 	
 			});		
-		}
+		
 
 	})
 
@@ -189,8 +277,6 @@ $(document).ready(function () {
 			formData.forEach(function(data){
 				inputData[data.name] = data.value;
 			});
-			
-			if (debug) alert(JSON.stringify(inputData));
 
 			localStorage.setItem("inputData", JSON.stringify(inputData));
 					
