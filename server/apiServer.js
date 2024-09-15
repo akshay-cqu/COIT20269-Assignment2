@@ -10,7 +10,7 @@ app.use(cors());
 // These lines will be explained in detail later in the unit
 
 const MongoClient = require('mongodb').MongoClient;
-const uri = "mongodb+srv://akshaybenny:Admin%40123@coit20269.4un2j.mongodb.net/?retryWrites=true&w=majority";
+const uri = "mongodb+srv://akshaybenny:Admin%40123@coit20269.4un2j.mongodb.net/?retryWrites=true&w=majority&ssl=true";
 const client = new MongoClient(uri, {useNewUrlParser: true, useUnifiedTopology: true});
 // Global for general use
 var userCollection;
