@@ -80,7 +80,7 @@ app.get('/getOrderDataTest', (req, res) => {
 
 app.get('/getPastOrders', (req, res) => {
 
-    console.log("GET request received\n");
+    console.log("GET past order request received\n");
     let email = req.query.email;
     orderCollection.find({customerEmail: email}, {projection: {_id: 0}}).toArray(function (err, docs) {
         if (err) {
@@ -98,11 +98,9 @@ app.get('/getPastOrders', (req, res) => {
 
 app.post('/verifyUser', (req, res) => {
 
-    console.log("POST request received : " + JSON.stringify(req.body) + "\n");
+    console.log("verify user request received : " + JSON.stringify(req.body) + "\n");
 
-    loginData = req.body;
-
-    userCollection.find({email: loginData.email, password: loginData.password}, {projection: {_id: 0}}).toArray(function (err, docs) {
+    userCollection.find(req.body, {projection: {_id: 0}}).toArray(function (err, docs) {
         if (err) {
             console.log("Some error.. " + err + "\n");
             res.send(err);
@@ -118,7 +116,7 @@ app.post('/verifyUser', (req, res) => {
 
 app.post('/postOrderData', function (req, res) {
 
-    console.log("POST request received : " + JSON.stringify(req.body) + "\n");
+    console.log("POST order request received : " + JSON.stringify(req.body) + "\n");
 
     orderCollection.insertOne(req.body, function (err, result) {
         if (err) {
@@ -151,6 +149,8 @@ app.post('/addUser', function (req, res) {
 
 app.post('/deleteUserOrders', (req, res) => {
 
+	console.log("USER delete request received : " + JSON.stringify(req.body) + "\n");
+
     var orderNos = req.body.orderNo;
     console.log("Some error.. " + orderNos);
     orderCollection.deleteMany({orderNo: {$in: orderNos}}, function (err, result) {
@@ -161,6 +161,7 @@ app.post('/deleteUserOrders', (req, res) => {
             var numberOfUserOrders = result.deletedCount;
             numberOfUserOrders = numberOfUserOrders + (numberOfUserOrders === 1 ? ' order' : ' orders') + ' deleted</p>';
             res.send({"msg": numberOfUserOrders});
+            console.log(numberOfUserOrders+"Orders have been deleted.");
         }
     });
 });
